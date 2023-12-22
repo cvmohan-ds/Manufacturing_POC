@@ -773,7 +773,7 @@ performance.
 An example custom metric configuration is as follows:
 ```
 custom_metrics:
- - name: weighted_mean_square_error
-   function: get_custom_metrics
-   greater_is_better: True
+ - name: "r2_score"
+      function: "get_custom_metrics"
+      greater_is_better: True
 ```
