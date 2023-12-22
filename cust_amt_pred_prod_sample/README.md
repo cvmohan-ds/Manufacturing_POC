@@ -1,4 +1,4 @@
-# MLflow Recipes Regression Template
+# MLflow Implementation of Customer Order Amount prediction using MLFlow Regression Recipe Template.
 ## Table of contents
 - [Key Features](#key-features)
 - [Getting Started](#getting-started)
@@ -12,13 +12,12 @@ The MLflow Regression Recipe is an [MLflow Recipe](https://mlflow.org/docs/lates
 It is designed for developing models using scikit-learn and frameworks that integrate with scikit-learn, 
 such as the `XGBRegressor` API from XGBoost.
 
-This repository is a template for developing production-ready regression models with the MLflow Regression Recipe.
+This repository is an example for developing production-ready regression models with the MLflow Regression Recipe.
 It provides a recipe structure for creating models as well as pointers to configurations and code files that should
 be filled in to produce a working recipe.
 
 Code developed with this template should be run with [MLflow Recipes](https://mlflow.org/docs/latest/recipes.html). 
-An example implementation of this template can be found in the [Recipe Regression Example repo](https://github.com/mlflow/recipes-examples/tree/main/regression), 
-which targets the NYC taxi dataset for its training problem.
+
 
 **Note**: [MLflow Recipes](https://mlflow.org/docs/latest/recipes.html)
 is an experimental feature in [MLflow](https://mlflow.org).
@@ -36,32 +35,6 @@ Your contribution to MLflow Recipes is greatly appreciated by the community!
 - Starter code for ingest, split, transform and train steps
 - Cards containing step results, including dataset profiles, model leaderboard, performance plots and more
 
-## Getting Started
-### Installation
-To use this MLflow regression recipe,
-simply install the packages listed in the `requirements.txt` file. Note that `Python 3.8` or above is recommended.
-```
-pip install requirements.txt
-```
-
-You may need to install additional libraries for extra features:
-- [Hyperopt](https://pypi.org/project/hyperopt/)  is required for hyperparameter tuning.
-- [PySpark](https://pypi.org/project/pyspark/)  is required for distributed training or to ingest Spark tables.
-- [Delta](https://pypi.org/project/delta-spark/) is required to ingest Delta tables.
-These libraries are available natively in the [Databricks Runtime for Machine Learning](https://docs.databricks.com/runtime/mlruntime.html).
-
-### Model Development
-After installing MLflow Recipes, you can clone this repository to get started. Simply fill in the required values annotated by `FIXME::REQUIRED` comments in the [Recipe configuration file](https://github.com/mlflow/recipes-regression-template/blob/main/recipe.yaml) 
-and in the appropriate profile configuration: [`local.yaml`](https://github.com/mlflow/recipes-regression-template/blob/main/profiles/local.yaml) 
-(if running locally) or [`databricks.yaml`](https://github.com/mlflow/recipes-regression-template/blob/main/profiles/databricks.yaml) 
-(if running on Databricks).
-
-The Recipe will then be in a runnable state, and when run completely, will produce a trained model ready for batch
-scoring, along with cards containing detailed information about the results of each step. 
-The model will also be registered to the MLflow Model Registry if it meets registration thresholds. 
-To iterate and improve your model, follow the [MLflow Recipes usage guide](https://mlflow.org/docs/latest/recipes.html#usage). 
-Note that iteration will likely involve filling in the optional `FIXME`s in the 
-step code files with your own code, in addition to the configuration keys.
 
 ### Productionization
 Once the model under development has reached desired quality,
@@ -119,7 +92,7 @@ Specifies the name of the column containing targets / labels for model training 
 The name of the column set as the target for model training.
 <u>Example</u>: 
   ```
-  target_col: "fare_amount"
+  target_col: "amount_in_usd"
   ```
 
 The **primary evaluation metric** is the one that will be used to select the best performing model in the MLflow UI as
@@ -129,7 +102,7 @@ Models are ranked by this primary metric.
 The name of the primary evaluation metric.
 <u>Example</u>: 
   ```
-  primary_metric: "root_mean_squared_error"
+  primary_metric: "r2_score"
   ```
 
 ### Ingest step
@@ -162,8 +135,9 @@ Example config in [`recipe.yaml`](https://github.com/mlflow/recipes-regression-t
 ```
 steps:
   ingest:
-    using: "parquet"
-    location: "./data/sample.parquet"
+    using: "custom"
+    location: "./data/Preprocessed_data.csv"
+    loader_method: load_file_as_dataframe
 ```
 
 </details>
@@ -343,12 +317,7 @@ should be done in the transform step.
     :return: A Series indicating whether each row should be filtered
     """
 
-    return (
-        (dataset["fare_amount"] > 0)
-        & (dataset["trip_distance"] < 400)
-        & (dataset["trip_distance"] > 0)
-        & (dataset["fare_amount"] < 1000)
-    ) | (~dataset.isna().any(axis=1))
+    return (~dataset.isna().any(axis=1))
   ```
 
 
@@ -393,12 +362,7 @@ should be done in the transform step.
     :return: A Series indicating whether each row should be filtered
     """
 
-    return (
-        (dataset["fare_amount"] > 0)
-        & (dataset["trip_distance"] < 400)
-        & (dataset["trip_distance"] > 0)
-        & (dataset["fare_amount"] < 1000)
-    ) | (~dataset.isna().any(axis=1))
+    return (~dataset.isna().any(axis=1))
   ```
 </details>
 
